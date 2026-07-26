@@ -1,113 +1,125 @@
 # Foundational Local Model RAG API
 
-A modular Retrieval-Augmented Generation API that runs locally using Ollama, Qdrant and FastAPI.
+A framework-light Retrieval-Augmented Generation API that runs locally using Ollama, Qdrant, and FastAPI.
 
-The project implements the core RAG pipeline directly from foundational components instead of relying on a high-level orchestration framework. Document ingestion, text chunking, embedding generation, vector storage, semantic retrieval, prompt construction and answer generation remain explicit within the codebase.
+The project implements the core RAG pipeline directly from foundational components rather than relying on a high-level orchestration framework. Document ingestion, chunking, embedding generation, vector storage, semantic retrieval, prompt construction, and answer generation remain explicit and inspectable within the codebase.
 
 ## Why This Project Exists
 
-Many RAG implementations begin with frameworks that combine several operations behind abstractions. Those tools can accelerate development, but they can also make the underlying retrieval and generation flow difficult to inspect.
+Many RAG implementations begin with frameworks that combine multiple operations behind abstractions. These tools can accelerate development, but they can also make the underlying retrieval and generation flow difficult to inspect.
 
 This repository takes a framework-light approach to demonstrate how the main RAG components communicate:
 
 ```text
-Document
-   ↓
+Uploaded document
+       ↓
+File validation and storage
+       ↓
 Text extraction
-   ↓
-Chunking
-   ↓
+       ↓
+Overlapping text chunks
+       ↓
 Embedding generation
-   ↓
-Vector storage
-   ↓
+       ↓
+Vector storage in Qdrant
+       ↓
 User question
-   ↓
+       ↓
 Query embedding
-   ↓
-Semantic retrieval
-   ↓
-Context construction
-   ↓
+       ↓
+Semantic similarity search
+       ↓
+Retrieved document context
+       ↓
+Grounded prompt construction
+       ↓
 Local language model
-   ↓
-Grounded answer
+       ↓
+Answer with source metadata
 ```
 
-The API is designed with clear module boundaries so that individual components can later be evaluated, replaced or extended independently.
+The API uses clear module boundaries so individual components can later be tested, evaluated, replaced, or extended independently.
 
-## Core Capabilities
+## Version 0.1.0 Capabilities
 
-- Local language-model inference
+- Local language-model inference with Ollama
 - Local embedding generation
-- Document ingestion and text chunking
-- Vector storage with Qdrant
+- PDF, DOCX, and TXT document ingestion
+- Document upload through a REST API
+- Original uploaded-file storage
+- Configurable overlapping text chunking
+- Persistent local vector storage with Qdrant
 - Semantic similarity retrieval
 - Context-grounded answer generation
-- REST API built with FastAPI
-- Source metadata and retrieval scores
-- Automated tests
-- Retrieval and answer evaluation
-- Extensible architecture for memory and model routing
+- Source filenames, chunk indexes, and similarity scores
+- FastAPI Swagger documentation
+- Unit tests for core pipeline components
+- Framework-light implementation without LangChain or LlamaIndex
 
 ## Technology Stack
 
 | Component           | Technology     |
 | ------------------- | -------------- |
-| Language            | Python         |
+| Language            | Python 3.12+   |
 | API                 | FastAPI        |
+| API server          | Uvicorn        |
 | Local model runtime | Ollama         |
 | Generation model    | Qwen 2.5 3B    |
 | Embedding model     | EmbeddingGemma |
 | Vector database     | Qdrant         |
+| PDF extraction      | pypdf          |
+| DOCX extraction     | python-docx    |
 | Validation          | Pydantic       |
 | Testing             | Pytest         |
 
 ## Architecture Principles
 
-The project follows several engineering principles:
-
-- Keep retrieval and generation logic independent.
-- Separate API concerns from AI orchestration.
-- Keep model and database integrations replaceable.
+- Keep retrieval and generation responsibilities independent.
+- Separate HTTP concerns from AI pipeline orchestration.
+- Keep model and vector-database integrations replaceable.
 - Use explicit Python code for the core RAG workflow.
-- Store document text and metadata alongside vectors.
-- Validate external inputs at system boundaries.
+- Process documents once during ingestion.
+- Store document content and metadata alongside vectors.
+- Embed only the new question during retrieval.
+- Validate inputs at system boundaries.
 - Make retrieval behavior observable and testable.
 - Add abstractions only when they solve a demonstrated need.
 
 ## Framework-Light RAG
 
-The core RAG pipeline does not depend on orchestration frameworks such as LangChain or LlamaIndex.
+The core RAG pipeline does not use orchestration frameworks such as LangChain or LlamaIndex.
 
-This is an intentional architectural decision for the foundational implementation. The pipeline directly coordinates:
+The implementation directly coordinates:
 
-1. Document loading
-2. Text normalization
-3. Chunk creation
-4. Embedding generation
-5. Vector persistence
-6. Query embedding
-7. Similarity search
-8. Context assembly
-9. Prompt construction
-10. Local-model generation
+1. Uploaded-file persistence
+2. File-type detection
+3. Text extraction
+4. Chunk creation
+5. Embedding generation
+6. Vector persistence
+7. Query embedding
+8. Similarity search
+9. Context assembly
+10. Prompt construction
+11. Local-model generation
 
-Focused libraries are still used for their intended infrastructure responsibilities:
+Focused libraries are still used for their infrastructure responsibilities:
 
 - Ollama runs local embedding and generation models.
 - Qdrant stores vectors and performs similarity search.
-- FastAPI exposes application capabilities through HTTP.
+- FastAPI exposes the application through HTTP.
 - Pydantic validates API data.
+- pypdf extracts text from PDF documents.
+- python-docx extracts text from Word documents.
 
-This separation makes the complete data flow visible and creates a baseline for evaluating higher-level frameworks later.
+This separation keeps the complete RAG flow visible and establishes a baseline for evaluating higher-level frameworks later.
 
 ## Project Structure
 
 ```text
 foundational-local-model-rag-api/
 ├── data/
-│   ├── documents/
+│   ├── uploads/
 │   └── qdrant/
 ├── docs/
 │   ├── architecture/
@@ -115,36 +127,235 @@ foundational-local-model-rag-api/
 ├── src/
 │   └── foundational_rag/
 │       ├── api/
+│       │   ├── chat.py
+│       │   ├── documents.py
+│       │   ├── health.py
+│       │   └── schemas.py
 │       ├── core/
+│       │   ├── config.py
+│       │   └── container.py
 │       ├── generation/
+│       │   ├── generator.py
+│       │   └── prompt_builder.py
 │       ├── ingestion/
+│       │   ├── loaders/
+│       │   │   ├── base.py
+│       │   │   ├── docx_loader.py
+│       │   │   ├── pdf_loader.py
+│       │   │   └── txt_loader.py
+│       │   ├── chunker.py
+│       │   └── file_loader.py
 │       ├── retrieval/
-│       └── services/
+│       │   ├── embeddings.py
+│       │   ├── qdrant_client.py
+│       │   ├── retriever.py
+│       │   └── vector_store.py
+│       ├── services/
+│       │   ├── ingestion_service.py
+│       │   └── rag_service.py
+│       └── main.py
 ├── tests/
 ├── .gitignore
 ├── pyproject.toml
 └── README.md
 ```
 
+## Installation
+
+### 1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd foundational-local-model-rag-api
+```
+
+### 2. Create and activate a virtual environment
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+### 3. Install the project
+
+```powershell
+pip install -e ".[dev]"
+```
+
+### 4. Install Ollama models
+
+```powershell
+ollama pull qwen2.5:3b
+ollama pull embeddinggemma
+```
+
+## Running the API
+
+```powershell
+uvicorn foundational_rag.main:app --reload
+```
+
+Open the Swagger interface:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+## API Endpoints
+
+### Health check
+
+```http
+GET /health
+```
+
+Example response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+### Upload and ingest a document
+
+```http
+POST /documents/upload
+```
+
+Supported formats:
+
+- `.pdf`
+- `.docx`
+- `.txt`
+
+Example response:
+
+```json
+{
+  "filename": "distributed_systems.pdf",
+  "chunks": 18
+}
+```
+
+The uploaded document is saved locally, its text is extracted and chunked, and each chunk is embedded and persisted in Qdrant.
+
+### Ask a document-grounded question
+
+```http
+POST /chat
+```
+
+Example request:
+
+```json
+{
+  "question": "What conditions are required for a distributed deadlock?"
+}
+```
+
+Example response:
+
+```json
+{
+  "answer": "A distributed deadlock requires...",
+  "sources": [
+    {
+      "source": "distributed_systems.pdf",
+      "chunk_index": 4,
+      "score": 0.87
+    }
+  ]
+}
+```
+
+## Document and Query Processing
+
+Documents are embedded only during ingestion:
+
+```text
+Upload document
+    ↓
+Extract and chunk text
+    ↓
+Generate chunk embeddings
+    ↓
+Persist embeddings in Qdrant
+```
+
+For every question, the system embeds only the question:
+
+```text
+Question
+    ↓
+Generate one query embedding
+    ↓
+Search stored document vectors
+    ↓
+Retrieve relevant chunks
+    ↓
+Generate a grounded answer
+```
+
+The original document is not extracted, chunked, or embedded again for each question.
+
+## Running Tests
+
+```powershell
+pytest -v
+```
+
+The initial test suite covers:
+
+- Chunk creation and overlap
+- Blank-text handling
+- Chunk configuration validation
+- TXT document loading
+- Unsupported file validation
+- Prompt construction
+- Empty-question validation
+- Semantic retrieval mapping
+- Ingestion orchestration
+- Unique vector-point identifiers
+
+Tests use lightweight fake components where external Ollama or Qdrant services are not required.
+
+## Current Limitations
+
+- Scanned PDFs requiring OCR are not supported.
+- Uploading the same document more than once can create duplicate vectors.
+- Uploaded filenames are not yet sanitized.
+- Large files are currently read fully into memory.
+- Conversation memory is not implemented.
+- Retrieval evaluation and answer evaluation are not implemented.
+- Document listing, replacement, and deletion are not implemented.
+
+## Planned Development
+
+- Duplicate-document detection
+- Safer uploaded-file handling
+- Document metadata and document identifiers
+- Document listing and deletion
+- Retrieval score thresholds
+- Retrieval and answer evaluation harnesses
+- Short-term conversation memory
+- Long-term semantic memory
+- Hybrid retrieval
+- Reranking
+- Model comparison and routing
+- Improved lifecycle and error handling
+
 ## Development Status
 
-The project is under active development.
+Version `0.1.0` provides a complete local document RAG baseline:
 
-The initial implementation will establish a complete local RAG pipeline before introducing advanced capabilities such as conversational memory, hybrid retrieval, reranking, model routing and agentic workflows.
+```text
+Upload → Extract → Chunk → Embed → Store → Retrieve → Prompt → Generate
+```
 
-## Planned Milestones
-
-- Repository and application foundation
-- Document ingestion pipeline
-- Embedding and vector-storage pipeline
-- Semantic retrieval
-- Context-grounded generation
-- FastAPI integration
-- Automated testing
-- Evaluation harness
-- Short-term conversation memory
-- Long-term memory
-- Retrieval improvements and model routing
+Advanced memory, evaluation, retrieval improvements, and model routing remain planned for later releases.
 
 ## License
 

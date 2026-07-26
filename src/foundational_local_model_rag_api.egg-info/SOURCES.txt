@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+src/foundational_local_model_rag_api.egg-info/PKG-INFO
+src/foundational_local_model_rag_api.egg-info/SOURCES.txt
+src/foundational_local_model_rag_api.egg-info/dependency_links.txt
+src/foundational_local_model_rag_api.egg-info/requires.txt
+src/foundational_local_model_rag_api.egg-info/top_level.txt
+src/foundational_rag/__init__.py
+src/foundational_rag/api/__init__.py
+src/foundational_rag/api/documents.py
+src/foundational_rag/core/__init__.py
+src/foundational_rag/core/config.py
+src/foundational_rag/generation/__init__.py
+src/foundational_rag/ingestion/__init__.py
+src/foundational_rag/ingestion/document_loader.py
+src/foundational_rag/retrieval/__init__.py
+src/foundational_rag/services/__init__.py

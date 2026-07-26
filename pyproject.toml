@@ -1,0 +1,22 @@
+[project]
+name = "foundational-local-model-rag-api"
+version = "0.1.0"
+description = "A framework-light Retrieval-Augmented Generation API using local language models."
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "ollama",
+    "qdrant-client",
+    "pydantic",
+    "pypdf",
+    "python-docx",
+    "python-multipart",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]

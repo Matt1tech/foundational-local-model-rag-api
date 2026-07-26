@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+ollama
+qdrant-client
+pydantic
+pypdf
+python-docx
+python-multipart
+
+[dev]
+pytest

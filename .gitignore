@@ -25,3 +25,12 @@ data/qdrant/
 # Operating system files
 .DS_Store
 Thumbs.db
+
+
+# Uploaded documents
+data/uploads/*
+!data/uploads/.gitkeep
+
+# Local Qdrant storage
+data/qdrant/*
+!data/qdrant/.gitkeep
