@@ -625,6 +625,140 @@
         color: var(--text-low);
       }
 
+      /* Tabs */
+      .tabs {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--panel-border);
+        border-radius: 11px;
+        margin-bottom: 16px;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: none;
+        background: transparent;
+        color: var(--text-low);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          background 0.25s var(--ease),
+          color 0.25s var(--ease);
+      }
+      .tab-btn:hover {
+        color: var(--text-mid);
+      }
+      .tab-btn.is-active {
+        background: var(--panel-strong);
+        color: var(--text-hi);
+        box-shadow: 0 0 0 1px var(--panel-border-hover);
+      }
+
+      .text-input {
+        width: 100%;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        background: var(--panel-strong);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-sm);
+        color: var(--text-hi);
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        transition: border-color 0.25s ease;
+      }
+      .text-input:focus {
+        border-color: var(--violet-soft);
+        outline: none;
+      }
+      .text-input::placeholder {
+        color: var(--text-low);
+      }
+
+      /* Document list */
+      .doc-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .doc-list-empty {
+        font-size: 12.5px;
+        color: var(--text-low);
+        font-style: italic;
+        padding: 6px 2px;
+      }
+      .doc-list:not(:empty) + .doc-list-empty {
+        display: none;
+      }
+      .doc-row {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 10px 11px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--panel-border);
+        animation: rise 0.3s var(--ease);
+      }
+      .doc-row__icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        flex-shrink: 0;
+        background: rgba(69, 224, 224, 0.12);
+        color: var(--cyan);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .doc-row__meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .doc-row__name {
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .doc-row__sub {
+        font-size: 11px;
+        color: var(--text-low);
+        font-family: var(--font-mono);
+      }
+      .doc-row__delete {
+        background: none;
+        border: none;
+        color: var(--text-low);
+        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        border-radius: 100px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          color 0.2s ease,
+          background 0.2s ease,
+          transform 0.2s ease;
+      }
+      .doc-row__delete:hover {
+        color: var(--danger);
+        background: rgba(248, 113, 113, 0.1);
+      }
+      .doc-row__delete:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .doc-row__delete.is-deleting svg {
+        animation: spin 0.8s linear infinite;
+      }
+
       /* Upload panel */
       .dropzone {
         border: 1.5px dashed var(--panel-border);
@@ -959,6 +1093,20 @@
         border: 1px solid var(--panel-border);
         border-top-left-radius: 4px;
       }
+      .msg-link {
+        color: var(--cyan);
+        text-decoration: underline;
+        text-decoration-color: rgba(69, 224, 224, 0.4);
+        text-underline-offset: 2px;
+        word-break: break-all;
+        transition:
+          color 0.2s ease,
+          text-decoration-color 0.2s ease;
+      }
+      .msg-link:hover {
+        color: #7ff0f0;
+        text-decoration-color: currentColor;
+      }
       .msg__bubble.streaming::after {
         content: "";
         display: inline-block;
@@ -994,10 +1142,15 @@
         max-width: 100%;
       }
 
+      .thinking-wrap {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 12px 16px;
+      }
       .thinking {
         display: flex;
         gap: 5px;
-        padding: 14px 15px;
       }
       .thinking span {
         width: 6px;
@@ -1023,6 +1176,74 @@
           transform: scale(1);
           opacity: 1;
         }
+      }
+
+      .thinking-label {
+        font-size: 12.5px;
+        color: var(--text-low);
+        letter-spacing: 0.01em;
+      }
+      .thinking-timer {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        font-variant-numeric: tabular-nums;
+        color: var(--cyan);
+        padding: 4px 10px;
+        border-radius: 100px;
+        background: rgba(69, 224, 224, 0.08);
+        border: 1px solid rgba(69, 224, 224, 0.28);
+        box-shadow: 0 0 12px rgba(69, 224, 224, 0.12);
+      }
+      .thinking-timer::before {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--cyan);
+        box-shadow: 0 0 6px var(--cyan);
+        animation: pulse-dot 1.2s ease-in-out infinite;
+        flex-shrink: 0;
+      }
+      .thinking-timer::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        left: -40%;
+        width: 40%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.16),
+          transparent
+        );
+        animation: timer-scan 1.6s linear infinite;
+      }
+      @keyframes timer-scan {
+        0% {
+          transform: translateX(-20%);
+        }
+        100% {
+          transform: translateX(340%);
+        }
+      }
+
+      .msg-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-low);
+        margin-top: 2px;
+      }
+      .msg-meta svg {
+        color: var(--cyan);
+        flex-shrink: 0;
       }
 
       /* Source cards */
@@ -1488,20 +1709,79 @@
               <div class="panel__title">
                 <span class="icon-dot"></span>Document
               </div>
-              <div class="panel__sub">PDF · DOCX · TXT</div>
+              <div class="panel__sub">PDF · DOCX · TXT · Web page</div>
+            </div>
+
+            <div class="tabs" role="tablist" aria-label="Document input method">
+              <button
+                class="tab-btn is-active"
+                id="uploadTabBtn"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                aria-controls="uploadTabPanel"
+              >
+                Upload file
+              </button>
+              <button
+                class="tab-btn"
+                id="crawlTabBtn"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="crawlTabPanel"
+              >
+                Crawl a URL
+              </button>
             </div>
 
             <div
-              class="dropzone"
-              id="dropzone"
-              tabindex="0"
-              role="button"
-              aria-label="Select a document to upload, or drag and drop one here"
+              id="uploadTabPanel"
+              role="tabpanel"
+              aria-labelledby="uploadTabBtn"
             >
-              <div class="dropzone__icon">
+              <div
+                class="dropzone"
+                id="dropzone"
+                tabindex="0"
+                role="button"
+                aria-label="Select a document to upload, or drag and drop one here"
+              >
+                <div class="dropzone__icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 4v11m0-11l-4 4m4-4l4 4M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2"
+                      stroke="currentColor"
+                      stroke-width="1.7"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </div>
+                <div class="dropzone__title">
+                  Drop a file, or click to browse
+                </div>
+                <div class="dropzone__hint">Accepts .pdf, .docx, .txt</div>
+                <input
+                  type="file"
+                  id="fileInput"
+                  accept=".pdf,.docx,.txt"
+                  aria-label="Choose a document file"
+                />
+              </div>
+
+              <div id="fileChip"></div>
+
+              <button class="btn-primary" id="uploadBtn" type="button" disabled>
                 <svg
-                  width="20"
-                  height="20"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -1509,47 +1789,70 @@
                   <path
                     d="M12 4v11m0-11l-4 4m4-4l4 4M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2"
                     stroke="currentColor"
-                    stroke-width="1.7"
+                    stroke-width="1.8"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   />
                 </svg>
+                Upload and index
+              </button>
+
+              <div class="progress-track" id="progressTrack">
+                <div class="progress-fill"></div>
               </div>
-              <div class="dropzone__title">Drop a file, or click to browse</div>
-              <div class="dropzone__hint">Accepts .pdf, .docx, .txt</div>
-              <input
-                type="file"
-                id="fileInput"
-                accept=".pdf,.docx,.txt"
-                aria-label="Choose a document file"
-              />
+              <div id="uploadResult" aria-live="polite"></div>
             </div>
 
-            <div id="fileChip"></div>
-
-            <button class="btn-primary" id="uploadBtn" type="button" disabled>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+            <div
+              id="crawlTabPanel"
+              role="tabpanel"
+              aria-labelledby="crawlTabBtn"
+              hidden
+            >
+              <label for="crawlUrlInput" class="visually-hidden"
+                >Web page URL to crawl and index</label
               >
-                <path
-                  d="M12 4v11m0-11l-4 4m4-4l4 4M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              Upload and index
-            </button>
-
-            <div class="progress-track" id="progressTrack">
-              <div class="progress-fill"></div>
+              <input
+                type="url"
+                id="crawlUrlInput"
+                class="text-input"
+                placeholder="https://example.com/article"
+                inputmode="url"
+                autocomplete="off"
+              />
+              <button class="btn-primary" id="crawlBtn" type="button">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a13.5 13.5 0 010 18M12 3a13.5 13.5 0 000 18"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                Crawl and index
+              </button>
+              <div id="crawlResult" aria-live="polite"></div>
             </div>
-            <div id="uploadResult" aria-live="polite"></div>
+          </div>
+
+          <div class="panel" id="documentsPanel">
+            <div class="panel__head">
+              <div class="panel__title">
+                <span class="icon-dot"></span>Your documents
+              </div>
+              <div class="panel__sub" id="documentsCount">0 indexed</div>
+            </div>
+            <div class="doc-list" id="documentsList"></div>
+            <div class="doc-list-empty" id="documentsEmpty">
+              Documents you upload or crawl this session will appear here.
+            </div>
           </div>
 
           <div class="panel">
@@ -1658,6 +1961,10 @@
           >Foundational RAG · runs entirely against your local FastAPI
           backend</span
         >
+        <span
+          >© 2026 Matt1Tech • Crafted by Mohamad Albukaai • All Rights
+          Reserved</span
+        >
         <span id="apiBaseFooter"></span>
       </footer>
     </div>
@@ -1675,9 +1982,14 @@
         const ENDPOINTS = {
           health: () => `${API_BASE_URL}/health`,
           upload: () => `${API_BASE_URL}/documents/upload`,
+          crawl: () => `${API_BASE_URL}/documents/crawl`,
+          getDocument: (id) =>
+            `${API_BASE_URL}/documents/${encodeURIComponent(id)}`,
+          deleteDocument: (id) =>
+            `${API_BASE_URL}/documents/${encodeURIComponent(id)}`,
           chat: () => `${API_BASE_URL}/chat`,
         };
-        const REQUEST_TIMEOUT_MS = 20000;
+        const REQUEST_TIMEOUT_MS = 50000;
         const ALLOWED_EXTENSIONS = ["pdf", "docx", "txt"];
         const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100MB sanity cap
 
@@ -1689,6 +2001,15 @@
             source: "source",
             chunkIndex: "chunk_index",
             score: "score",
+          },
+          // /documents/upload and /documents/crawl both return a document record;
+          // fall back gracefully across the "filename"/"chunks" shorthand above too.
+          document: {
+            id: "document_id",
+            filename: "original_filename",
+            chunks: "chunk_count",
+            size: "file_size",
+            mimeType: "mime_type",
           },
         };
 
@@ -1711,6 +2032,19 @@
 
         const activityList = document.getElementById("activityList");
 
+        const uploadTabBtn = document.getElementById("uploadTabBtn");
+        const crawlTabBtn = document.getElementById("crawlTabBtn");
+        const uploadTabPanel = document.getElementById("uploadTabPanel");
+        const crawlTabPanel = document.getElementById("crawlTabPanel");
+        const crawlUrlInput = document.getElementById("crawlUrlInput");
+        const crawlBtn = document.getElementById("crawlBtn");
+        const crawlResult = document.getElementById("crawlResult");
+
+        const documentsPanel = document.getElementById("documentsPanel");
+        const documentsList = document.getElementById("documentsList");
+        const documentsEmpty = document.getElementById("documentsEmpty");
+        const documentsCount = document.getElementById("documentsCount");
+
         const chatLog = document.getElementById("chatLog");
         const chatInput = document.getElementById("chatInput");
         const sendBtn = document.getElementById("sendBtn");
@@ -1723,8 +2057,13 @@
      ========================================================= */
         let selectedFile = null;
         let isUploading = false;
+        let isCrawling = false;
         let isAsking = false;
         let hasIndexedDocument = false;
+        // Client-side registry of documents indexed this session. The API has no
+        // "list all documents" endpoint, so this is built up from upload/crawl
+        // responses and kept only in memory (never persisted to storage).
+        let trackedDocuments = [];
 
         /* =========================================================
      UTILITIES
@@ -1801,6 +2140,7 @@
           { id: "backend", label: "Backend connected" },
           { id: "selected", label: "Document selected" },
           { id: "uploading", label: "Uploading document" },
+          { id: "crawling", label: "Fetching web page" },
           { id: "indexing", label: "Extracting and indexing" },
           { id: "ready", label: "Document ready" },
           { id: "retrieving", label: "Retrieving context" },
@@ -1838,6 +2178,7 @@
         }
 
         renderActivity();
+        renderDocumentsList();
 
         /* =========================================================
      BACKEND HEALTH CHECK
@@ -1922,13 +2263,15 @@
           fileChip.appendChild(chip);
         }
 
-        function clearFileSelection() {
+        function clearFileSelection(options) {
           selectedFile = null;
           fileInput.value = "";
           renderFileChip();
           uploadBtn.disabled = true;
           setActivity("selected", "pending");
-          uploadResult.innerHTML = "";
+          if (!options || options.keepResult !== true) {
+            uploadResult.innerHTML = "";
+          }
         }
 
         function handleFileSelection(file) {
@@ -2000,6 +2343,180 @@
         });
 
         /* =========================================================
+     SHARED HELPERS: error messages & document field access
+     ========================================================= */
+        // API errors sometimes come back as a plain string `detail`, and sometimes
+        // (e.g. 409 duplicate conflicts) as a structured object. Normalize both.
+        function extractErrorMessage(data, response) {
+          const detail = data && data.detail;
+          if (typeof detail === "string" && detail) return detail;
+          if (detail && typeof detail === "object") {
+            const base =
+              typeof detail.message === "string"
+                ? detail.message
+                : "Request failed.";
+            const label = detail.filename || detail.source;
+            return label ? `${base} (${label})` : base;
+          }
+          if (typeof (data && data.message) === "string") return data.message;
+          if (typeof (data && data.error) === "string") return data.error;
+          return `Request failed with status ${response.status}.`;
+        }
+
+        // Reads a document record using the configured field names, falling back
+        // to the simpler /documents/upload shorthand names if present.
+        function readDocField(data, key) {
+          if (!data) return undefined;
+          const primaryKey = FIELDS.document[key];
+          if (primaryKey && data[primaryKey] !== undefined)
+            return data[primaryKey];
+          if (key === "filename" && data[FIELDS.upload.filename] !== undefined)
+            return data[FIELDS.upload.filename];
+          if (key === "chunks" && data[FIELDS.upload.chunks] !== undefined)
+            return data[FIELDS.upload.chunks];
+          return undefined;
+        }
+
+        /* =========================================================
+     TRACKED DOCUMENTS LIST
+     ========================================================= */
+        function docIconSvg() {
+          return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 2h9l5 5v13a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M15 2v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>`;
+        }
+        function trashIconSvg() {
+          return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 7h16M9 7V4h6v3m-8 0l1 13a2 2 0 002 2h4a2 2 0 002-2l1-13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+        }
+
+        function updateDocumentsSummary() {
+          const n = trackedDocuments.length;
+          documentsCount.textContent = `${n} indexed`;
+          chatDocLabel.textContent =
+            n === 0
+              ? "No document indexed yet"
+              : n === 1
+                ? `Indexed: ${trackedDocuments[0].filename || "1 document"}`
+                : `${n} documents indexed`;
+          hasIndexedDocument = n > 0;
+        }
+
+        function renderDocumentsList() {
+          documentsList.innerHTML = "";
+          documentsEmpty.style.display =
+            trackedDocuments.length === 0 ? "block" : "none";
+
+          trackedDocuments.forEach((doc) => {
+            const row = document.createElement("div");
+            row.className = "doc-row";
+            row.dataset.docId = doc.id || "";
+
+            const icon = document.createElement("div");
+            icon.className = "doc-row__icon";
+            icon.innerHTML = docIconSvg();
+
+            const meta = document.createElement("div");
+            meta.className = "doc-row__meta";
+            const name = document.createElement("div");
+            name.className = "doc-row__name";
+            name.textContent = doc.filename || "Untitled document";
+            const sub = document.createElement("div");
+            sub.className = "doc-row__sub";
+            const bits = [];
+            if (typeof doc.chunks === "number")
+              bits.push(`${doc.chunks} chunks`);
+            if (typeof doc.size === "number")
+              bits.push(formatFileSize(doc.size));
+            bits.push(doc.kind === "crawl" ? "web page" : "file");
+            sub.textContent = bits.join(" · ");
+            meta.appendChild(name);
+            meta.appendChild(sub);
+
+            const del = document.createElement("button");
+            del.className = "doc-row__delete";
+            del.type = "button";
+            del.innerHTML = trashIconSvg();
+            del.setAttribute(
+              "aria-label",
+              `Remove ${doc.filename || "document"}`,
+            );
+            del.disabled = !doc.id;
+            del.addEventListener("click", () => deleteDocument(doc.id, del));
+
+            row.appendChild(icon);
+            row.appendChild(meta);
+            row.appendChild(del);
+            documentsList.appendChild(row);
+          });
+
+          updateDocumentsSummary();
+        }
+
+        function trackDocument(doc) {
+          trackedDocuments.push(doc);
+          renderDocumentsList();
+        }
+
+        async function deleteDocument(documentId, buttonEl) {
+          if (!documentId) return;
+          if (buttonEl) {
+            buttonEl.disabled = true;
+            buttonEl.classList.add("is-deleting");
+          }
+          try {
+            const response = await fetchWithTimeout(
+              ENDPOINTS.deleteDocument(documentId),
+              { method: "DELETE" },
+            );
+
+            if (!response.ok && response.status !== 204) {
+              let data = null;
+              try {
+                data = await response.json();
+              } catch (_e) {
+                /* no body */
+              }
+              throw new Error(extractErrorMessage(data, response));
+            }
+
+            trackedDocuments = trackedDocuments.filter(
+              (d) => d.id !== documentId,
+            );
+            renderDocumentsList();
+            showNotification("Document removed.", "success");
+          } catch (err) {
+            console.error("Delete failed:", err);
+            const message =
+              err instanceof TypeError
+                ? describeNetworkError(err) + " " + CORS_HINT
+                : err.message || "Could not delete this document.";
+            showNotification(message, "error");
+            if (buttonEl) {
+              buttonEl.disabled = false;
+              buttonEl.classList.remove("is-deleting");
+            }
+          }
+        }
+
+        /* =========================================================
+     UPLOAD / CRAWL TABS
+     ========================================================= */
+        function setActiveDocTab(tab) {
+          const isUpload = tab === "upload";
+          uploadTabBtn.classList.toggle("is-active", isUpload);
+          crawlTabBtn.classList.toggle("is-active", !isUpload);
+          uploadTabBtn.setAttribute("aria-selected", String(isUpload));
+          crawlTabBtn.setAttribute("aria-selected", String(!isUpload));
+          uploadTabPanel.hidden = !isUpload;
+          crawlTabPanel.hidden = isUpload;
+        }
+        uploadTabBtn.addEventListener("click", () => setActiveDocTab("upload"));
+        crawlTabBtn.addEventListener("click", () => setActiveDocTab("crawl"));
+
+        /* =========================================================
      UPLOAD DOCUMENT
      ========================================================= */
         async function uploadDocument() {
@@ -2033,24 +2550,24 @@
             }
 
             if (!response.ok) {
-              const serverMessage =
-                data && (data.detail || data.message || data.error);
-              throw new Error(
-                typeof serverMessage === "string"
-                  ? serverMessage
-                  : `Upload failed with status ${response.status}.`,
-              );
+              throw new Error(extractErrorMessage(data, response));
             }
 
-            const filename = data && data[FIELDS.upload.filename];
-            const chunkCount = data && data[FIELDS.upload.chunks];
+            const documentId = readDocField(data, "id");
+            const filename = readDocField(data, "filename");
+            const chunkCount = readDocField(data, "chunks");
+            const fileSize = readDocField(data, "size");
 
             setActivity("indexing", "done");
             setActivity("ready", "done");
-            hasIndexedDocument = true;
-            chatDocLabel.textContent = filename
-              ? `Indexed: ${filename}`
-              : "Document indexed";
+
+            trackDocument({
+              id: documentId,
+              filename: filename || selectedFile.name,
+              chunks: typeof chunkCount === "number" ? chunkCount : undefined,
+              size: typeof fileSize === "number" ? fileSize : selectedFile.size,
+              kind: "upload",
+            });
 
             const banner = document.createElement("div");
             banner.className = "result-banner success";
@@ -2063,6 +2580,7 @@
             uploadResult.innerHTML = "";
             uploadResult.appendChild(banner);
 
+            clearFileSelection({ keepResult: true });
             showNotification(
               "Document indexed. You can start asking questions.",
               "success",
@@ -2104,6 +2622,132 @@
         }
 
         uploadBtn.addEventListener("click", uploadDocument);
+
+        /* =========================================================
+     CRAWL DOCUMENT (POST /documents/crawl)
+     ========================================================= */
+        function isLikelyUrl(value) {
+          try {
+            const u = new URL(value);
+            return u.protocol === "http:" || u.protocol === "https:";
+          } catch (_e) {
+            return false;
+          }
+        }
+
+        async function crawlDocument() {
+          const url = crawlUrlInput.value.trim();
+          crawlResult.innerHTML = "";
+
+          if (!url) {
+            showNotification("Please enter a URL to crawl.", "error");
+            return;
+          }
+          if (!isLikelyUrl(url)) {
+            showNotification(
+              "That doesn't look like a valid http(s) URL.",
+              "error",
+            );
+            return;
+          }
+          if (isCrawling) return;
+
+          isCrawling = true;
+          crawlBtn.disabled = true;
+          progressTrack.classList.add("is-active");
+          setActivity("crawling", "active");
+
+          try {
+            const response = await fetchWithTimeout(ENDPOINTS.crawl(), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url }),
+            });
+
+            setActivity("crawling", "done");
+            setActivity("indexing", "active");
+
+            let data;
+            try {
+              data = await response.json();
+            } catch (parseErr) {
+              throw new Error(
+                "The server returned a response that could not be understood.",
+              );
+            }
+
+            if (!response.ok) {
+              throw new Error(extractErrorMessage(data, response));
+            }
+
+            const documentId = readDocField(data, "id");
+            const filename = readDocField(data, "filename") || url;
+            const chunkCount = readDocField(data, "chunks");
+
+            setActivity("indexing", "done");
+            setActivity("ready", "done");
+
+            trackDocument({
+              id: documentId,
+              filename,
+              chunks: typeof chunkCount === "number" ? chunkCount : undefined,
+              kind: "crawl",
+            });
+
+            const banner = document.createElement("div");
+            banner.className = "result-banner success";
+            const strong = document.createElement("strong");
+            strong.textContent = "Web page indexed successfully";
+            const detail = document.createElement("span");
+            detail.textContent = `${filename} — ${typeof chunkCount === "number" ? chunkCount : "an unknown number of"} chunks generated.`;
+            banner.appendChild(strong);
+            banner.appendChild(detail);
+            crawlResult.appendChild(banner);
+
+            crawlUrlInput.value = "";
+            showNotification(
+              "Web page indexed. You can start asking questions.",
+              "success",
+            );
+          } catch (err) {
+            console.error("Crawl failed:", err);
+            setActivity("indexing", "error");
+
+            const message =
+              err.name === "AbortError"
+                ? "The crawl timed out. " + CORS_HINT
+                : err instanceof TypeError
+                  ? describeNetworkError(err) + " " + CORS_HINT
+                  : err.message || "Crawling that URL failed.";
+
+            const banner = document.createElement("div");
+            banner.className = "result-banner error";
+            const strong = document.createElement("strong");
+            strong.textContent = "Crawl failed";
+            const detail = document.createElement("span");
+            detail.textContent = message;
+            banner.appendChild(strong);
+            banner.appendChild(detail);
+            crawlResult.appendChild(banner);
+
+            showNotification(
+              "Crawling that URL failed. See details above.",
+              "error",
+            );
+          } finally {
+            isCrawling = false;
+            crawlBtn.disabled = false;
+            progressTrack.classList.remove("is-active");
+          }
+        }
+
+        crawlBtn.addEventListener("click", crawlDocument);
+        crawlUrlInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            crawlDocument();
+          }
+        });
 
         /* =========================================================
      CHAT
@@ -2180,7 +2824,54 @@
           tick();
         }
 
-        function addAssistantMessage(answerText, sources) {
+        // Matches http(s) URLs and bare www.-prefixed domains inside plain text.
+        const URL_PATTERN = /((?:https?:\/\/|www\.)[^\s<>()"']+)/gi;
+
+        // Rebuilds an element's text content as a mix of text nodes and real <a>
+        // elements so URLs in API-provided answers become clickable. Never uses
+        // innerHTML with the source text — links are constructed via the DOM.
+        function linkifyBubble(el, text) {
+          el.textContent = "";
+          const source = String(text || "");
+          let lastIndex = 0;
+          let match;
+          URL_PATTERN.lastIndex = 0;
+
+          while ((match = URL_PATTERN.exec(source)) !== null) {
+            if (match.index > lastIndex) {
+              el.appendChild(
+                document.createTextNode(source.slice(lastIndex, match.index)),
+              );
+            }
+
+            // Trim common trailing punctuation that isn't part of the URL.
+            let raw = match[0];
+            let trailing = "";
+            const trailingMatch = raw.match(/[.,;:!?)\]"']+$/);
+            if (trailingMatch) {
+              trailing = trailingMatch[0];
+              raw = raw.slice(0, raw.length - trailing.length);
+            }
+
+            const href = raw.startsWith("www.") ? `https://${raw}` : raw;
+            const link = document.createElement("a");
+            link.href = href;
+            link.textContent = raw;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.className = "msg-link";
+            el.appendChild(link);
+
+            if (trailing) el.appendChild(document.createTextNode(trailing));
+            lastIndex = match.index + match[0].length;
+          }
+
+          if (lastIndex < source.length) {
+            el.appendChild(document.createTextNode(source.slice(lastIndex)));
+          }
+        }
+
+        function addAssistantMessage(answerText, sources, elapsedMs) {
           const msg = document.createElement("div");
           msg.className = "msg msg--assistant";
 
@@ -2200,12 +2891,32 @@
           chatLog.appendChild(msg);
           scrollChatToBottom();
 
-          // Sources appear once the answer has finished streaming in.
+          // Sources appear once the answer has finished streaming in, and any
+          // URLs in the answer are converted into clickable links at that point.
           streamText(bubble, answerText, () => {
             bubble.classList.remove("streaming");
+            linkifyBubble(bubble, answerText);
+
+            if (typeof elapsedMs === "number") {
+              const meta = document.createElement("div");
+              meta.className = "msg-meta";
+              meta.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+              const metaText = document.createElement("span");
+              metaText.textContent = `Answered in ${formatElapsed(elapsedMs)}`;
+              meta.appendChild(metaText);
+              body.appendChild(meta);
+            }
+
             body.appendChild(renderSources(sources));
             scrollChatToBottom();
           });
+        }
+
+        let thinkingIntervalId = null;
+        let thinkingStartedAt = null;
+
+        function formatElapsed(ms) {
+          return (ms / 1000).toFixed(1) + "s";
         }
 
         function addThinkingIndicator() {
@@ -2217,20 +2928,57 @@
           avatar.className = "msg__avatar";
           avatar.textContent = "AI";
 
-          const bubble = document.createElement("div");
-          bubble.className = "msg__bubble thinking";
-          bubble.innerHTML = "<span></span><span></span><span></span>";
-          bubble.setAttribute("aria-label", "Assistant is thinking");
+          const wrap = document.createElement("div");
+          wrap.className = "msg__bubble thinking-wrap";
+          wrap.setAttribute("aria-label", "Assistant is generating an answer");
+
+          const dots = document.createElement("div");
+          dots.className = "thinking";
+          dots.innerHTML = "<span></span><span></span><span></span>";
+
+          const label = document.createElement("span");
+          label.className = "thinking-label";
+          label.textContent = "Generating answer";
+
+          const timer = document.createElement("span");
+          timer.className = "thinking-timer";
+          timer.id = "thinkingTimer";
+          timer.textContent = "0.0s";
+
+          wrap.appendChild(dots);
+          wrap.appendChild(label);
+          wrap.appendChild(timer);
 
           msg.appendChild(avatar);
-          msg.appendChild(bubble);
+          msg.appendChild(wrap);
           chatLog.appendChild(msg);
           scrollChatToBottom();
+
+          thinkingStartedAt = performance.now();
+          thinkingIntervalId = setInterval(() => {
+            timer.textContent = formatElapsed(
+              performance.now() - thinkingStartedAt,
+            );
+          }, 100);
         }
 
+        // Stops the live timer and returns the total elapsed milliseconds so the
+        // final answer can be tagged with how long it took to generate.
         function removeThinkingIndicator() {
+          if (thinkingIntervalId !== null) {
+            clearInterval(thinkingIntervalId);
+            thinkingIntervalId = null;
+          }
+          const elapsed =
+            thinkingStartedAt !== null
+              ? performance.now() - thinkingStartedAt
+              : null;
+          thinkingStartedAt = null;
+
           const el = document.getElementById("thinkingIndicator");
           if (el) el.remove();
+
+          return elapsed;
         }
 
         function renderSources(sources) {
@@ -2353,8 +3101,8 @@
               "The backend did not return an answer.";
             const sources = data && data[FIELDS.chat.sources];
 
-            removeThinkingIndicator();
-            addAssistantMessage(answer, sources);
+            const elapsed = removeThinkingIndicator();
+            addAssistantMessage(answer, sources, elapsed);
             setActivity("generating", "done");
           } catch (err) {
             console.error("Chat request failed:", err);

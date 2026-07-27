@@ -5,8 +5,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = PROJECT_ROOT / "data"
 
 UPLOADS_DIR = DATA_DIR / "uploads"
-
 QDRANT_DIR = DATA_DIR / "qdrant"
+DOCUMENTS_FILE = DATA_DIR / "documents.json"
 
 COLLECTION_NAME = "lecture_chunks"
 

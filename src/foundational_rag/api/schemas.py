@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 
 class ChatRequest(BaseModel):
@@ -14,3 +14,6 @@ class SourceResponse(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     sources: list[SourceResponse]
+    
+class CrawlDocumentRequest(BaseModel):
+    url: HttpUrl

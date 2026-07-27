@@ -34,3 +34,7 @@ data/uploads/*
 # Local Qdrant storage
 data/qdrant/*
 !data/qdrant/.gitkeep
+
+# Runtime document metadata
+data/documents.json
+data/documents.tmp

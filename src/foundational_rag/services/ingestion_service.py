@@ -22,7 +22,11 @@ class IngestionService:
         self.embedding_service = embedding_service
         self.vector_store = vector_store
 
-    def ingest(self, file_path: Path) -> int:
+    def ingest(
+    self,
+    file_path: Path,
+    document_id: str,
+) -> int:
         """Load, chunk, embed, and store a document."""
 
         text = self.file_loader.load(file_path)
@@ -37,10 +41,11 @@ class IngestionService:
                 point_id=str(uuid4()),
                 embedding=embedding,
                 payload={
-                    "source": file_path.name,
-                    "chunk_index": chunk.chunk_index,
-                    "content": chunk.content,
-                },
+                        "document_id": document_id,
+                        "source": file_path.name,
+                        "chunk_index": chunk.chunk_index,
+                        "content": chunk.content,
+                        },
             )
 
         return len(chunks)
