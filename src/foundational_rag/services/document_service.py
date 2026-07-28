@@ -1,10 +1,13 @@
 import json
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
 from foundational_rag.core.config import DOCUMENTS_FILE
+
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentService:
@@ -34,12 +37,28 @@ class DocumentService:
             "uploaded_at": datetime.now(timezone.utc).isoformat(),
         }
 
-        documents = self.list_documents()
-        documents.append(document)
+        try:
+            documents = self.list_documents()
+            documents.append(document)
 
-        self._write_documents(documents)
+            self._write_documents(documents)
 
-        return document
+            logger.info(
+                "Document metadata created: "
+                "document_id=%s source=%s chunks=%d",
+                document_id,
+                original_filename,
+                chunk_count,
+            )
+
+            return document
+
+        except Exception:
+            logger.exception(
+                "Failed to create document metadata: document_id=%s",
+                document_id,
+            )
+            raise
 
     def list_documents(self) -> list[dict[str, Any]]:
         return self._read_documents()
@@ -72,35 +91,61 @@ class DocumentService:
         )
 
     def delete_document(self, document_id: str) -> dict[str, Any] | None:
-        documents = self.list_documents()
+        try:
+            documents = self.list_documents()
 
-        document = next(
-            (
+            document = next(
+                (
+                    item
+                    for item in documents
+                    if item["document_id"] == document_id
+                ),
+                None,
+            )
+
+            if document is None:
+                logger.warning(
+                    "Document metadata not found: document_id=%s",
+                    document_id,
+                )
+                return None
+
+            remaining_documents = [
                 item
                 for item in documents
-                if item["document_id"] == document_id
-            ),
-            None,
-        )
+                if item["document_id"] != document_id
+            ]
 
-        if document is None:
-            return None
+            self._write_documents(remaining_documents)
 
-        remaining_documents = [
-            item
-            for item in documents
-            if item["document_id"] != document_id
-        ]
+            logger.info(
+                "Document metadata deleted: document_id=%s source=%s",
+                document_id,
+                document["original_filename"],
+            )
 
-        self._write_documents(remaining_documents)
+            return document
 
-        return document
+        except Exception:
+            logger.exception(
+                "Failed to delete document metadata: document_id=%s",
+                document_id,
+            )
+            raise
 
     def _initialize_store(self) -> None:
-        self.metadata_file.parent.mkdir(parents=True, exist_ok=True)
+        self.metadata_file.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
 
         if not self.metadata_file.exists():
             self._write_documents([])
+
+            logger.info(
+                "Document metadata store created: path=%s",
+                self.metadata_file,
+            )
 
     def _read_documents(self) -> list[dict[str, Any]]:
         try:
@@ -109,12 +154,30 @@ class DocumentService:
                 encoding="utf-8",
             ) as file:
                 data = json.load(file)
+
         except json.JSONDecodeError as exc:
+            logger.exception(
+                "Invalid document metadata JSON: path=%s",
+                self.metadata_file,
+            )
+
             raise RuntimeError(
                 f"Invalid document metadata file: {self.metadata_file}"
             ) from exc
 
+        except OSError:
+            logger.exception(
+                "Failed to read document metadata: path=%s",
+                self.metadata_file,
+            )
+            raise
+
         if not isinstance(data, list):
+            logger.error(
+                "Document metadata is not a list: path=%s",
+                self.metadata_file,
+            )
+
             raise RuntimeError(
                 "Document metadata must contain a JSON list."
             )
@@ -127,15 +190,25 @@ class DocumentService:
     ) -> None:
         temporary_file = self.metadata_file.with_suffix(".tmp")
 
-        with temporary_file.open(
-            "w",
-            encoding="utf-8",
-        ) as file:
-            json.dump(
-                documents,
-                file,
-                indent=2,
-                ensure_ascii=False,
+        try:
+            with temporary_file.open(
+                "w",
+                encoding="utf-8",
+            ) as file:
+                json.dump(
+                    documents,
+                    file,
+                    indent=2,
+                    ensure_ascii=False,
+                )
+
+            temporary_file.replace(self.metadata_file)
+
+        except Exception:
+            logger.exception(
+                "Failed to write document metadata: path=%s",
+                self.metadata_file,
             )
 
-        temporary_file.replace(self.metadata_file)
+            temporary_file.unlink(missing_ok=True)
+            raise

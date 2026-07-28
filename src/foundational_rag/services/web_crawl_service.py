@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import re
 import sys
 from typing import Any
@@ -17,6 +18,9 @@ from foundational_rag.core.config import UPLOADS_DIR
 from foundational_rag.core.file_utils import calculate_file_hash
 from foundational_rag.services.document_service import DocumentService
 from foundational_rag.services.ingestion_service import IngestionService
+
+
+logger = logging.getLogger(__name__)
 
 
 class DuplicateWebDocumentError(Exception):
@@ -66,8 +70,20 @@ class WebCrawlService:
 
         file_path = UPLOADS_DIR / stored_filename
 
+        logger.info(
+            "Starting web crawl: document_id=%s url=%s",
+            document_id,
+            url,
+        )
+
         try:
             markdown = await self._crawl(url)
+
+            logger.info(
+                "Web crawl completed: document_id=%s characters=%d",
+                document_id,
+                len(markdown),
+            )
 
             file_path.write_text(
                 markdown,
@@ -83,6 +99,14 @@ class WebCrawlService:
             )
 
             if existing_document is not None:
+                logger.warning(
+                    "Duplicate web content detected: "
+                    "document_id=%s existing_document_id=%s url=%s",
+                    document_id,
+                    existing_document["document_id"],
+                    url,
+                )
+
                 raise DuplicateWebDocumentError(
                     existing_document
                 )
@@ -102,10 +126,30 @@ class WebCrawlService:
                 chunk_count=chunk_count,
             )
 
+            logger.info(
+                "Web document indexed successfully: "
+                "document_id=%s chunks=%d url=%s",
+                document_id,
+                chunk_count,
+                url,
+            )
+
             return document
+
+        except DuplicateWebDocumentError:
+            file_path.unlink(missing_ok=True)
+            raise
 
         except Exception:
             file_path.unlink(missing_ok=True)
+
+            logger.exception(
+                "Web crawl ingestion failed: "
+                "document_id=%s url=%s",
+                document_id,
+                url,
+            )
+
             raise
 
     async def _crawl(self, url: str) -> str:
@@ -115,6 +159,8 @@ class WebCrawlService:
         On Windows, Playwright needs a ProactorEventLoop because it
         launches a browser using asyncio subprocesses.
         """
+
+        logger.debug("Starting Crawl4AI thread: url=%s", url)
 
         return await asyncio.to_thread(
             self._crawl_in_separate_loop,
@@ -137,6 +183,12 @@ class WebCrawlService:
             )
 
             if not result.success:
+                logger.error(
+                    "Crawler returned unsuccessful result: url=%s error=%s",
+                    url,
+                    result.error_message,
+                )
+
                 raise WebCrawlError(
                     result.error_message
                     or "The webpage could not be crawled."
@@ -147,6 +199,11 @@ class WebCrawlService:
             ).strip()
 
             if not markdown:
+                logger.warning(
+                    "Crawler returned empty Markdown: url=%s",
+                    url,
+                )
+
                 raise WebCrawlError(
                     "The crawler returned no useful Markdown."
                 )
