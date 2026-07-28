@@ -1,10 +1,17 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from foundational_rag.api.chat import router as chat_router
 from foundational_rag.api.documents import router as documents_router
 from foundational_rag.api.health import router as health_router
+from foundational_rag.core.logging import configure_logging
 
+
+configure_logging()
+
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI(
@@ -27,6 +34,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def startup_event() -> None:
+    logger.info("Application started")
+
+
+@app.on_event("shutdown")
+async def shutdown_event() -> None:
+    logger.info("Application stopped")
+
+
 app.include_router(health_router)
 app.include_router(documents_router)
 app.include_router(chat_router)

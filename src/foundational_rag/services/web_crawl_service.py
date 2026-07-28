@@ -5,7 +5,13 @@ from typing import Any
 from urllib.parse import urlparse
 from uuid import uuid4
 
-from crawl4ai import AsyncWebCrawler
+from crawl4ai import (
+    AsyncWebCrawler,
+    CacheMode,
+    CrawlerRunConfig,
+)
+from crawl4ai.content_filter_strategy import PruningContentFilter
+from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
 
 from foundational_rag.core.config import UPLOADS_DIR
 from foundational_rag.core.file_utils import calculate_file_hash
@@ -30,7 +36,7 @@ class WebCrawlError(Exception):
 
 
 class WebCrawlService:
-    """Crawls webpages and indexes their Markdown content."""
+    """Crawls webpages and indexes their cleaned Markdown content."""
 
     def __init__(
         self,
@@ -42,8 +48,8 @@ class WebCrawlService:
 
     async def crawl_and_ingest(self, url: str) -> dict:
         """
-        Crawl a webpage, save it as Markdown, ingest its chunks,
-        and store its document metadata.
+        Crawl a webpage, save its cleaned Markdown, ingest its
+        chunks, and store its document metadata.
         """
 
         document_id = str(uuid4())
@@ -142,7 +148,7 @@ class WebCrawlService:
 
             if not markdown:
                 raise WebCrawlError(
-                    "The crawler returned empty Markdown."
+                    "The crawler returned no useful Markdown."
                 )
 
             return markdown
@@ -157,12 +163,53 @@ class WebCrawlService:
             asyncio.set_event_loop(None)
 
     @staticmethod
+    def _create_crawler_config() -> CrawlerRunConfig:
+        """
+        Configure Crawl4AI to remove common webpage noise and
+        generate filtered Markdown for RAG ingestion.
+        """
+
+        content_filter = PruningContentFilter(
+            threshold=0.48,
+            threshold_type="dynamic",
+            min_word_threshold=10,
+        )
+
+        markdown_generator = DefaultMarkdownGenerator(
+            content_filter=content_filter,
+            options={
+                "ignore_images": True,
+                "body_width": 0,
+            },
+        )
+
+        return CrawlerRunConfig(
+            cache_mode=CacheMode.BYPASS,
+            markdown_generator=markdown_generator,
+            excluded_tags=[
+                "nav",
+                "footer",
+                "aside",
+                "script",
+                "style",
+                "noscript",
+                "form",
+            ],
+            word_count_threshold=10,
+            remove_overlay_elements=True,
+            exclude_social_media_links=True,
+        )
+
+    @staticmethod
     async def _run_crawler(url: str) -> Any:
-        """Run Crawl4AI and return its crawl result."""
+        """Run Crawl4AI and return its configured crawl result."""
+
+        crawler_config = WebCrawlService._create_crawler_config()
 
         async with AsyncWebCrawler() as crawler:
             return await crawler.arun(
                 url=url,
+                config=crawler_config,
             )
 
     @staticmethod
@@ -170,9 +217,18 @@ class WebCrawlService:
         markdown_result: object,
     ) -> str:
         """
-        Extract Markdown while supporting different Crawl4AI
-        result representations.
+        Prefer Crawl4AI's filtered Markdown and fall back to
+        raw Markdown when filtered content is unavailable.
         """
+
+        fit_markdown = getattr(
+            markdown_result,
+            "fit_markdown",
+            None,
+        )
+
+        if isinstance(fit_markdown, str) and fit_markdown.strip():
+            return fit_markdown
 
         raw_markdown = getattr(
             markdown_result,
@@ -180,13 +236,13 @@ class WebCrawlService:
             None,
         )
 
-        if isinstance(raw_markdown, str):
+        if isinstance(raw_markdown, str) and raw_markdown.strip():
             return raw_markdown
 
         if isinstance(markdown_result, str):
             return markdown_result
 
-        return str(markdown_result)
+        return ""
 
     @staticmethod
     def _create_filename(

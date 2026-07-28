@@ -693,15 +693,18 @@
       .doc-list:not(:empty) + .doc-list-empty {
         display: none;
       }
+      .doc-item {
+        border-radius: 10px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--panel-border);
+        animation: rise 0.3s var(--ease);
+      }
       .doc-row {
         display: flex;
         align-items: center;
         gap: 11px;
         padding: 10px 11px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.025);
-        border: 1px solid var(--panel-border);
-        animation: rise 0.3s var(--ease);
       }
       .doc-row__icon {
         width: 32px;
@@ -717,6 +720,7 @@
       .doc-row__meta {
         flex: 1;
         min-width: 0;
+        cursor: pointer;
       }
       .doc-row__name {
         font-size: 13px;
@@ -730,6 +734,13 @@
         color: var(--text-low);
         font-family: var(--font-mono);
       }
+      .doc-row__actions {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        flex-shrink: 0;
+      }
+      .doc-row__view,
       .doc-row__delete {
         background: none;
         border: none;
@@ -747,16 +758,76 @@
           background 0.2s ease,
           transform 0.2s ease;
       }
+      .doc-row__view:hover {
+        color: var(--cyan);
+        background: rgba(69, 224, 224, 0.1);
+      }
+      .doc-row__view .chev {
+        transition: transform 0.25s var(--ease);
+      }
+      .doc-item.is-open .doc-row__view .chev {
+        transform: rotate(180deg);
+      }
       .doc-row__delete:hover {
         color: var(--danger);
         background: rgba(248, 113, 113, 0.1);
       }
-      .doc-row__delete:disabled {
+      .doc-row__delete:disabled,
+      .doc-row__view:disabled {
         opacity: 0.4;
         cursor: not-allowed;
       }
       .doc-row__delete.is-deleting svg {
         animation: spin 0.8s linear infinite;
+      }
+
+      .doc-detail {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s var(--ease);
+        border-top: 1px solid transparent;
+      }
+      .doc-item.is-open .doc-detail {
+        max-height: 260px;
+        border-top-color: var(--panel-border);
+      }
+      .doc-detail__inner {
+        padding: 12px 13px 13px;
+      }
+      .doc-detail__loading,
+      .doc-detail__error {
+        font-size: 12px;
+        color: var(--text-low);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .doc-detail__error {
+        color: #fbc7c7;
+      }
+      .doc-detail__grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 6px 12px;
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+      }
+      .doc-detail__grid dt {
+        color: var(--text-low);
+      }
+      .doc-detail__grid dd {
+        margin: 0;
+        color: var(--text-mid);
+        word-break: break-all;
+      }
+      .spinner-sm {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-top-color: var(--cyan);
+        animation: spin 0.7s linear infinite;
+        flex-shrink: 0;
       }
 
       /* Upload panel */
@@ -1482,6 +1553,119 @@
           max-width: 96%;
         }
       }
+
+      /* =========================================================
+         DOCUMENT ID MANAGEMENT
+         ========================================================= */
+      .document-manager__controls {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 10px;
+        align-items: end;
+      }
+      .document-manager__field {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      .document-manager__label {
+        color: var(--text-low);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+      .document-manager__input {
+        width: 100%;
+        min-height: 44px;
+        padding: 0 13px;
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-sm);
+        background: rgba(5, 5, 9, 0.72);
+        color: var(--text-hi);
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+      }
+      .document-manager__input::placeholder {
+        color: #6f6b80;
+      }
+      .document-manager__input:focus {
+        border-color: var(--cyan);
+      }
+      .document-manager__button {
+        min-height: 44px;
+        padding: 0 15px;
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-sm);
+        color: var(--text-hi);
+        background: var(--panel-strong);
+        cursor: pointer;
+        font-weight: 700;
+        transition:
+          transform 160ms var(--ease),
+          border-color 160ms var(--ease),
+          opacity 160ms ease;
+      }
+      .document-manager__button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        border-color: var(--panel-border-hover);
+      }
+      .document-manager__button--get {
+        border-color: rgba(69, 224, 224, 0.35);
+        background: linear-gradient(
+          135deg,
+          rgba(139, 92, 246, 0.72),
+          rgba(69, 224, 224, 0.72)
+        );
+      }
+      .document-manager__button--delete {
+        color: #fecaca;
+        border-color: rgba(248, 113, 113, 0.36);
+        background: rgba(248, 113, 113, 0.09);
+      }
+      .document-manager__button:disabled,
+      .document-manager__input:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .document-manager__result {
+        margin-top: 14px;
+        padding: 13px;
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-sm);
+        background: rgba(5, 5, 9, 0.62);
+      }
+      .document-manager__result[hidden] {
+        display: none;
+      }
+      .document-manager__row {
+        display: grid;
+        grid-template-columns: 110px minmax(0, 1fr);
+        gap: 12px;
+        padding: 5px 0;
+        font-size: 0.84rem;
+      }
+      .document-manager__key {
+        color: var(--text-low);
+      }
+      .document-manager__value {
+        color: var(--text-hi);
+        overflow-wrap: anywhere;
+      }
+      .document-manager__message--success {
+        color: var(--success);
+      }
+      .document-manager__message--error {
+        color: var(--danger);
+      }
+      @media (max-width: 720px) {
+        .document-manager__controls {
+          grid-template-columns: 1fr;
+        }
+        .document-manager__button {
+          width: 100%;
+        }
+      }
     </style>
   </head>
   <body>
@@ -1855,6 +2039,51 @@
             </div>
           </div>
 
+          <div class="panel" id="documentManagerPanel">
+            <div class="panel__head">
+              <div class="panel__title">
+                <span class="icon-dot"></span>Get or delete by ID
+              </div>
+              <div class="panel__sub" id="documentManagerStatus">
+                Enter an ID
+              </div>
+            </div>
+            <div class="document-manager__controls">
+              <div class="document-manager__field">
+                <label class="document-manager__label" for="documentIdInput"
+                  >Document ID</label
+                >
+                <input
+                  id="documentIdInput"
+                  class="document-manager__input"
+                  type="text"
+                  placeholder="Paste document ID"
+                  autocomplete="off"
+                />
+              </div>
+              <button
+                id="getDocumentButton"
+                class="document-manager__button document-manager__button--get"
+                type="button"
+              >
+                Get document
+              </button>
+              <button
+                id="deleteDocumentButton"
+                class="document-manager__button document-manager__button--delete"
+                type="button"
+              >
+                Delete
+              </button>
+            </div>
+            <div
+              id="documentLookupResult"
+              class="document-manager__result"
+              hidden
+              aria-live="polite"
+            ></div>
+          </div>
+
           <div class="panel">
             <div class="panel__head">
               <div class="panel__title">
@@ -2044,6 +2273,18 @@
         const documentsList = document.getElementById("documentsList");
         const documentsEmpty = document.getElementById("documentsEmpty");
         const documentsCount = document.getElementById("documentsCount");
+
+        const documentIdInput = document.getElementById("documentIdInput");
+        const getDocumentButton = document.getElementById("getDocumentButton");
+        const deleteDocumentButton = document.getElementById(
+          "deleteDocumentButton",
+        );
+        const documentLookupResult = document.getElementById(
+          "documentLookupResult",
+        );
+        const documentManagerStatus = document.getElementById(
+          "documentManagerStatus",
+        );
 
         const chatLog = document.getElementById("chatLog");
         const chatInput = document.getElementById("chatInput");
@@ -2404,15 +2645,153 @@
           hasIndexedDocument = n > 0;
         }
 
+        // Tracks which document row is expanded, and caches fetched detail
+        // records keyed by document_id so re-opening a row doesn't refetch.
+        let expandedDocId = null;
+        const docDetailsCache = {}; // id -> { status: "loading"|"error"|"ready", data?, message? }
+
+        function eyeIconSvg() {
+          return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/>
+    </svg><span class="chev"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+        }
+
+        function renderDocDetailBody(container, documentId) {
+          container.innerHTML = "";
+          const cached = docDetailsCache[documentId];
+
+          if (!cached || cached.status === "loading") {
+            const loading = document.createElement("div");
+            loading.className = "doc-detail__loading";
+            const spinner = document.createElement("span");
+            spinner.className = "spinner-sm";
+            loading.appendChild(spinner);
+            loading.appendChild(
+              document.createTextNode("Fetching document details…"),
+            );
+            container.appendChild(loading);
+            return;
+          }
+
+          if (cached.status === "error") {
+            const err = document.createElement("div");
+            err.className = "doc-detail__error";
+            err.textContent =
+              cached.message || "Could not load document details.";
+            container.appendChild(err);
+            return;
+          }
+
+          const data = cached.data || {};
+          const rows = [
+            ["Document ID", readDocField(data, "id")],
+            ["Filename", readDocField(data, "filename")],
+            ["Chunks", readDocField(data, "chunks")],
+            [
+              "File size",
+              typeof readDocField(data, "size") === "number"
+                ? formatFileSize(readDocField(data, "size"))
+                : undefined,
+            ],
+            ["MIME type", readDocField(data, "mimeType")],
+          ];
+
+          const dl = document.createElement("dl");
+          dl.className = "doc-detail__grid";
+          rows.forEach(([label, value]) => {
+            if (value === undefined || value === null || value === "") return;
+            const dt = document.createElement("dt");
+            dt.textContent = label;
+            const dd = document.createElement("dd");
+            dd.textContent = String(value);
+            dl.appendChild(dt);
+            dl.appendChild(dd);
+          });
+
+          if (!dl.children.length) {
+            const empty = document.createElement("div");
+            empty.className = "doc-detail__loading";
+            empty.textContent = "No additional details were returned.";
+            container.appendChild(empty);
+            return;
+          }
+
+          container.appendChild(dl);
+        }
+
+        async function fetchDocumentDetails(documentId, container) {
+          docDetailsCache[documentId] = { status: "loading" };
+          renderDocDetailBody(container, documentId);
+
+          try {
+            const response = await fetchWithTimeout(
+              ENDPOINTS.getDocument(documentId),
+              { method: "GET" },
+            );
+            let data = null;
+            try {
+              data = await response.json();
+            } catch (_e) {
+              /* no/invalid body */
+            }
+
+            if (!response.ok) {
+              throw new Error(extractErrorMessage(data, response));
+            }
+
+            docDetailsCache[documentId] = { status: "ready", data };
+          } catch (err) {
+            console.error("Fetching document details failed:", err);
+            const message =
+              err instanceof TypeError
+                ? describeNetworkError(err) + " " + CORS_HINT
+                : err.message || "Could not load document details.";
+            docDetailsCache[documentId] = { status: "error", message };
+          }
+
+          renderDocDetailBody(container, documentId);
+        }
+
+        function toggleDocDetails(documentId, detailBody) {
+          const item = detailBody.closest(".doc-item");
+          if (expandedDocId === documentId) {
+            expandedDocId = null;
+            item.classList.remove("is-open");
+            return;
+          }
+
+          // Collapse any previously open row.
+          document
+            .querySelectorAll(".doc-item.is-open")
+            .forEach((el) => el.classList.remove("is-open"));
+          expandedDocId = documentId;
+          item.classList.add("is-open");
+
+          if (
+            !docDetailsCache[documentId] ||
+            docDetailsCache[documentId].status === "error"
+          ) {
+            fetchDocumentDetails(documentId, detailBody);
+          } else {
+            renderDocDetailBody(detailBody, documentId);
+          }
+        }
+
         function renderDocumentsList() {
           documentsList.innerHTML = "";
           documentsEmpty.style.display =
             trackedDocuments.length === 0 ? "block" : "none";
 
           trackedDocuments.forEach((doc) => {
+            const item = document.createElement("div");
+            item.className = "doc-item";
+            item.dataset.docId = doc.id || "";
+            if (doc.id && doc.id === expandedDocId)
+              item.classList.add("is-open");
+
             const row = document.createElement("div");
             row.className = "doc-row";
-            row.dataset.docId = doc.id || "";
 
             const icon = document.createElement("div");
             icon.className = "doc-row__icon";
@@ -2420,6 +2799,8 @@
 
             const meta = document.createElement("div");
             meta.className = "doc-row__meta";
+            meta.setAttribute("role", "button");
+            meta.setAttribute("tabindex", doc.id ? "0" : "-1");
             const name = document.createElement("div");
             name.className = "doc-row__name";
             name.textContent = doc.filename || "Untitled document";
@@ -2435,6 +2816,25 @@
             meta.appendChild(name);
             meta.appendChild(sub);
 
+            const actions = document.createElement("div");
+            actions.className = "doc-row__actions";
+
+            const detailBody = document.createElement("div");
+            detailBody.className = "doc-detail__inner";
+
+            const view = document.createElement("button");
+            view.className = "doc-row__view";
+            view.type = "button";
+            view.innerHTML = eyeIconSvg();
+            view.setAttribute(
+              "aria-label",
+              `View details for ${doc.filename || "document"}`,
+            );
+            view.disabled = !doc.id;
+            view.addEventListener("click", () =>
+              toggleDocDetails(doc.id, detailBody),
+            );
+
             const del = document.createElement("button");
             del.className = "doc-row__delete";
             del.type = "button";
@@ -2446,10 +2846,34 @@
             del.disabled = !doc.id;
             del.addEventListener("click", () => deleteDocument(doc.id, del));
 
+            meta.addEventListener("click", () => {
+              if (doc.id) toggleDocDetails(doc.id, detailBody);
+            });
+            meta.addEventListener("keydown", (e) => {
+              if (doc.id && (e.key === "Enter" || e.key === " ")) {
+                e.preventDefault();
+                toggleDocDetails(doc.id, detailBody);
+              }
+            });
+
+            actions.appendChild(view);
+            actions.appendChild(del);
+
             row.appendChild(icon);
             row.appendChild(meta);
-            row.appendChild(del);
-            documentsList.appendChild(row);
+            row.appendChild(actions);
+
+            const detail = document.createElement("div");
+            detail.className = "doc-detail";
+            detail.appendChild(detailBody);
+
+            item.appendChild(row);
+            item.appendChild(detail);
+            documentsList.appendChild(item);
+
+            if (doc.id && doc.id === expandedDocId) {
+              renderDocDetailBody(detailBody, doc.id);
+            }
           });
 
           updateDocumentsSummary();
@@ -2485,6 +2909,8 @@
             trackedDocuments = trackedDocuments.filter(
               (d) => d.id !== documentId,
             );
+            delete docDetailsCache[documentId];
+            if (expandedDocId === documentId) expandedDocId = null;
             renderDocumentsList();
             showNotification("Document removed.", "success");
           } catch (err) {
@@ -2500,6 +2926,194 @@
             }
           }
         }
+
+        /* =========================================================
+     DOCUMENT LOOKUP / DELETE BY ID
+     ========================================================= */
+        function setDocumentManagerBusy(isBusy, status) {
+          documentIdInput.disabled = isBusy;
+          getDocumentButton.disabled = isBusy;
+          deleteDocumentButton.disabled = isBusy;
+          if (status) documentManagerStatus.textContent = status;
+        }
+
+        function showDocumentManagerMessage(message, type = "error") {
+          documentLookupResult.hidden = false;
+          documentLookupResult.innerHTML = "";
+          const node = document.createElement("div");
+          node.className = `document-manager__message--${type}`;
+          node.textContent = message;
+          documentLookupResult.appendChild(node);
+        }
+
+        function renderManagedDocument(data, requestedId) {
+          const rows = [
+            ["Document ID", data?.document_id ?? data?.id ?? requestedId],
+            [
+              "Filename",
+              data?.original_filename ??
+                data?.filename ??
+                data?.name ??
+                "Not provided",
+            ],
+            ["Status", data?.status ?? "Available"],
+            ["Chunks", data?.chunk_count ?? data?.chunks ?? "Not provided"],
+            [
+              "Size",
+              typeof data?.file_size === "number"
+                ? formatFileSize(data.file_size)
+                : "Not provided",
+            ],
+            ["Type", data?.mime_type ?? data?.content_type ?? "Not provided"],
+            [
+              "Source",
+              data?.source_url ?? data?.url ?? data?.source ?? "Not provided",
+            ],
+          ];
+          documentLookupResult.hidden = false;
+          documentLookupResult.innerHTML = "";
+          rows.forEach(([key, value]) => {
+            const row = document.createElement("div");
+            row.className = "document-manager__row";
+            const keyNode = document.createElement("div");
+            keyNode.className = "document-manager__key";
+            keyNode.textContent = key;
+            const valueNode = document.createElement("div");
+            valueNode.className = "document-manager__value";
+            valueNode.textContent = String(value ?? "Not provided");
+            row.append(keyNode, valueNode);
+            documentLookupResult.appendChild(row);
+          });
+        }
+
+        async function getDocumentById() {
+          const documentId = documentIdInput.value.trim();
+          if (!documentId) {
+            showDocumentManagerMessage("Enter a document ID first.");
+            documentManagerStatus.textContent = "ID required";
+            documentIdInput.focus();
+            return;
+          }
+          setDocumentManagerBusy(true, "Getting document…");
+          try {
+            const response = await fetchWithTimeout(
+              ENDPOINTS.getDocument(documentId),
+              { method: "GET" },
+            );
+            let data = null;
+            try {
+              data = await response.json();
+            } catch (_e) {
+              /* empty response */
+            }
+            if (!response.ok)
+              throw new Error(extractErrorMessage(data, response));
+            renderManagedDocument(data || {}, documentId);
+            documentManagerStatus.textContent = "Document found";
+
+            const normalized = {
+              id:
+                data?.[FIELDS.document.id] ??
+                data?.document_id ??
+                data?.id ??
+                documentId,
+              filename:
+                data?.[FIELDS.document.filename] ??
+                data?.filename ??
+                data?.name ??
+                "Retrieved document",
+              chunks: data?.[FIELDS.document.chunks] ?? data?.chunks,
+              size: data?.[FIELDS.document.size] ?? data?.file_size,
+              kind: data?.source_url || data?.url ? "crawl" : "upload",
+            };
+            const existingIndex = trackedDocuments.findIndex(
+              (doc) => String(doc.id) === String(normalized.id),
+            );
+            if (existingIndex >= 0)
+              trackedDocuments[existingIndex] = {
+                ...trackedDocuments[existingIndex],
+                ...normalized,
+              };
+            else trackedDocuments.push(normalized);
+            renderDocumentsList();
+          } catch (err) {
+            console.error("Document lookup failed:", err);
+            const message =
+              err instanceof TypeError
+                ? describeNetworkError(err) + " " + CORS_HINT
+                : err.message || "Could not get this document.";
+            showDocumentManagerMessage(message);
+            documentManagerStatus.textContent = "Request failed";
+          } finally {
+            setDocumentManagerBusy(false);
+          }
+        }
+
+        async function deleteDocumentByEnteredId() {
+          const documentId = documentIdInput.value.trim();
+          if (!documentId) {
+            showDocumentManagerMessage("Enter a document ID first.");
+            documentManagerStatus.textContent = "ID required";
+            documentIdInput.focus();
+            return;
+          }
+          if (
+            !window.confirm(
+              `Delete document "${documentId}"? This cannot be undone.`,
+            )
+          )
+            return;
+          setDocumentManagerBusy(true, "Deleting document…");
+          try {
+            const response = await fetchWithTimeout(
+              ENDPOINTS.deleteDocument(documentId),
+              { method: "DELETE" },
+            );
+            let data = null;
+            try {
+              data = await response.json();
+            } catch (_e) {
+              /* 204 or empty response */
+            }
+            if (!response.ok && response.status !== 204)
+              throw new Error(extractErrorMessage(data, response));
+            trackedDocuments = trackedDocuments.filter(
+              (doc) => String(doc.id) !== String(documentId),
+            );
+            delete docDetailsCache[documentId];
+            if (expandedDocId === documentId) expandedDocId = null;
+            renderDocumentsList();
+            showDocumentManagerMessage(
+              `Document ${documentId} was deleted.`,
+              "success",
+            );
+            documentManagerStatus.textContent = "Document deleted";
+            documentIdInput.value = "";
+            showNotification("Document removed.", "success");
+          } catch (err) {
+            console.error("Delete by ID failed:", err);
+            const message =
+              err instanceof TypeError
+                ? describeNetworkError(err) + " " + CORS_HINT
+                : err.message || "Could not delete this document.";
+            showDocumentManagerMessage(message);
+            documentManagerStatus.textContent = "Delete failed";
+          } finally {
+            setDocumentManagerBusy(false);
+          }
+        }
+
+        getDocumentButton.addEventListener("click", getDocumentById);
+        deleteDocumentButton.addEventListener(
+          "click",
+          deleteDocumentByEnteredId,
+        );
+        documentIdInput.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            getDocumentById();
+          }
+        });
 
         /* =========================================================
      UPLOAD / CRAWL TABS
