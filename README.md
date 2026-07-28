@@ -1117,6 +1117,15 @@ Advanced memory, evaluation, retrieval optimization, model routing, and producti
 
 ---
 
+## Author
+
+**Mohamad Albukaai**
+Software Engineer specializing in AI
+
+This project showcases practical experience in local AI systems, Retrieval-Augmented Generation, semantic search, API architecture, document ingestion, and lightweight AI application development.
+
+---
+
 ## License
 
 MIT License.
